@@ -1,3 +1,6 @@
+@import "~bootstrap/scss/bootstrap";
+@import "~bootstrap-icons";
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +8,23 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-width: 700px;
+  min-height: 500px;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.hover-pointer {
+  cursor: pointer;
+}
+
+.flex {
+  flex: 1 1 auto;
+}
+
+label {
+  cursor: pointer;
 }

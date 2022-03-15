@@ -34,7 +34,7 @@ export const Rule = ({ idx }: RuleProps) => {
     <button className={'btn btn-primary btn-sm'} onClick={() => dispatch && dispatch(newHeaderAction(idx))}>
       Add header to change
     </button>
-    { ruleHeaders?.map((h, hIdx) => <RuleHeaders headerIdx={hIdx} idx={hIdx} key={hIdx}
+    { ruleHeaders?.map((h, hIdx) => <RuleHeaders headerIdx={hIdx} idx={idx} key={hIdx}
                                                  headerName={h.headerName} headerValue={h.headerValue} />) }
   </div>;
 };

@@ -1,0 +1,6 @@
+{
+  "files": ["background.ts"],
+  "compilerOptions": {
+    "outDir": "build"
+  }
+}

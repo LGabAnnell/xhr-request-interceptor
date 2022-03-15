@@ -2,8 +2,6 @@ import React from 'react'
 import './App.css'
 import { Header } from './components/header/Header'
 import { Rules } from './components/rules/Rules'
-import onResponseStarted = chrome.webRequest.onResponseStarted;
-import WebRequestBodyDetails = chrome.webRequest.WebRequestBodyDetails;
 
 export interface RedirectionRule {
   name?: string;
@@ -20,7 +18,7 @@ export interface RuleState {
 }
 
 export interface Action {
-  type: 'add' | 'remove' | 'updateUrlFrom' | 'updateName' | 'updateUrlTo' | 'updateHeaders' | 'newHeader';
+  type: 'add' | 'remove' | 'updateUrlFrom' | 'updateName' | 'updateUrlTo' | 'updateHeaders' | 'newHeader' | 'removeHeader';
   idx?: number;
   ruleName?: string;
   ruleUrl?: string;
@@ -42,6 +40,14 @@ export const updateHeaderAction: (headerName: string, headerValue: string, idx: 
     idx,
     headerIdx
   });
+
+export const removeHeaderAction: (ruleIdx: number, headerIdx: number) => Action = (ruleIdx, headerIdx) => {
+  return {
+    type: 'removeHeader',
+    idx: ruleIdx,
+    headerIdx
+  }
+}
 
 export const newHeaderAction = (idx: number) => {
   return {
@@ -90,7 +96,7 @@ export const updateUrlToAction: (urlTo: string, idx: number) => Action = (urlTo,
 
 const initialRules = localStorage.getItem('RULES')
 
-const RuleContext = React.createContext<{ state: RuleState, dispatch?:(action: Action) => void }>({
+const RuleContext = React.createContext<{ state: RuleState, dispatch?: (action: Action) => void }>({
   state: {
     rules: initialRules ? JSON.parse(initialRules) : []
   }
@@ -156,6 +162,17 @@ const ruleReducer = (state: RuleState, action: Action) => {
         headerName: 'Authorization',
         headerValue: ''
       });
+      localStorage.setItem('RULES', JSON.stringify(rules));
+      return {
+        rules
+      };
+    }
+    case 'removeHeader': {
+      const rules = state.rules;
+      //@ts-ignore
+      rules[action.idx].headersToReplace = rules[action.idx].headersToReplace
+        .filter((_: any, idx: number) => idx !== action.headerIdx);
+      localStorage.setItem('RULES', JSON.stringify(rules));
       return {
         rules
       };
@@ -194,7 +211,7 @@ export const useRules = () => {
   return ctx
 }
 
-function App () {
+function App() {
   return (
     <div className="App">
       <RuleProvider>

@@ -1,4 +1,4 @@
-import { updateHeaderAction, useRules } from '../../App';
+import { removeHeaderAction, updateHeaderAction, useRules } from '../../App';
 
 export const headerOptions = [
   'Authorization',
@@ -15,10 +15,15 @@ export const RuleHeaders = ({ headerName, headerValue, idx, headerIdx }) => {
       idx,
       headerIdx
     ))}>
-      {headerOptions.map(o => <option value={o}>{o}</option>)}
+      { headerOptions.map(o => <option value={o}>{o}</option>) }
     </select>
     <input className={'flex'} value={headerValue} onChange={e => {
       dispatch && dispatch(updateHeaderAction(headerName, e.target.value, idx, headerIdx));
     }}/>
+    <button className={'btn btn-danger btn-sm ms-2'} onClick={() => {
+      dispatch && dispatch(removeHeaderAction(idx, headerIdx));
+    }}>
+      <i className={'bi-trash'}/>
+    </button>
   </div>
 }

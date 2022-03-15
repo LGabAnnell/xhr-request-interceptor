@@ -2,23 +2,15 @@ import React from 'react'
 import './App.css'
 import { Header } from './components/header/Header'
 import { Rules } from './components/rules/Rules'
-
-export interface RedirectionRule {
-  name?: string;
-  urlFrom?: string;
-  urlTo?: string;
-  headersToReplace?: {
-    headerName?: string,
-    headerValue?: string
-  }[];
-}
+import { RedirectionRule } from './model';
 
 export interface RuleState {
   rules: RedirectionRule[];
 }
 
 export interface Action {
-  type: 'add' | 'remove' | 'updateUrlFrom' | 'updateName' | 'updateUrlTo' | 'updateHeaders' | 'newHeader' | 'removeHeader';
+  type: 'add' | 'remove' | 'updateUrlFrom' | 'updateName' | 'updateUrlTo' | 'updateHeaders' | 'newHeader'
+    | 'removeHeader' | 'updateRuleActive';
   idx?: number;
   ruleName?: string;
   ruleUrl?: string;
@@ -26,8 +18,17 @@ export interface Action {
   headers?: {
     headerName: string,
     headerValue: string
-  },
-  headerIdx?: number
+  };
+  headerIdx?: number;
+  active?: boolean;
+}
+
+export const updateRuleActive = (idx: number, active: boolean): Action => {
+  return {
+    type: 'updateRuleActive',
+    active,
+    idx
+  }
 }
 
 export const updateHeaderAction: (headerName: string, headerValue: string, idx: number, headerIdx: number) => Action =
@@ -172,6 +173,15 @@ const ruleReducer = (state: RuleState, action: Action) => {
       //@ts-ignore
       rules[action.idx].headersToReplace = rules[action.idx].headersToReplace
         .filter((_: any, idx: number) => idx !== action.headerIdx);
+      localStorage.setItem('RULES', JSON.stringify(rules));
+      return {
+        rules
+      };
+    }
+    case 'updateRuleActive': {
+      const rules = state.rules;
+      // @ts-ignore
+      rules[action.idx].active = action.active;
       localStorage.setItem('RULES', JSON.stringify(rules));
       return {
         rules

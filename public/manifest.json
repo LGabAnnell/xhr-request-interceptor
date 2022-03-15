@@ -1,15 +1,14 @@
 {
-  "name": "Hello Extensions",
-  "description": "Base Level Extension",
+  "name": "Request Interceptor",
+  "description": "Redirect and change request headers",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
     "default_popup": "index.html",
-    "default_title": "Open the popup"
+    "default_title": "Edit rules"
   },
   "permissions": [
-    "declarativeNetRequest",
-    "declarativeNetRequestFeedback"
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "*://*/*"

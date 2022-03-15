@@ -1,7 +1,7 @@
 import {
   newHeaderAction,
   removeAction,
-  updateNameAction,
+  updateNameAction, updateRuleActive,
   updateURLAction,
   updateUrlToAction,
   useRules
@@ -20,8 +20,15 @@ export const Rule = ({ idx }: RuleProps) => {
   const ruleUrl = state.rules[idx].urlFrom;
   const urlTo = state.rules[idx].urlTo;
   const ruleHeaders = state.rules[idx].headersToReplace;
+  const active = state.rules[idx].active;
 
   return <div className={'w-100 border border-success m-2 p-2 d-flex flex-column align-items-start'}>
+    <div className="form-check form-switch">
+      <input checked={active} className="form-check-input"
+             onChange={(e) => dispatch && dispatch(updateRuleActive(idx, e.target.checked))}
+             type="checkbox" role="switch" id={'flexSwitchCheckDefault' + idx}/>
+      <label className="form-check-label" htmlFor={'flexSwitchCheckDefault' + idx}>Enable / disable</label>
+    </div>
     <div className={'d-flex w-100'}>
       <input className={'flex'} value={firstRuleName}
              onChange={e => dispatch && dispatch(updateNameAction(e.target.value, idx))}/>

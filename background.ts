@@ -1,92 +1,67 @@
 import Rule = chrome.declarativeNetRequest.Rule;
 import RuleActionType = chrome.declarativeNetRequest.RuleActionType;
 import ResourceType = chrome.declarativeNetRequest.ResourceType;
+import HeaderOperation = chrome.declarativeNetRequest.HeaderOperation;
+import { RedirectionRule } from './src/model'
 
-chrome.runtime.onMessage.addListener(({ rules }, _1, sendResponse) => {
+chrome.runtime.onMessage.addListener(({ rules }: { rules: RedirectionRule[] }, _1, sendResponse) => {
   chrome.declarativeNetRequest.getDynamicRules(res => {
-    let oldRules;
+    let oldRules: number[];
     if (res && res.length > 0) {
       oldRules = res.map(r => r.id);
     } else {
       oldRules = [];
     }
-    const redirectRule: Rule = {
-      id: 1,
-      action: {
-        type: RuleActionType.REDIRECT,
-        redirect: {
-          regexSubstitution: 'http://localhost:4000'
-        }
-      },
-      condition: {
-        regexFilter: '^https://chezgab.ch/lights/protected',
-        resourceTypes: [ResourceType.XMLHTTPREQUEST],
-      },
-      priority: 1
-    }
-    /*rules.forEach((rule, index) => {
-      const redirectRules = [
-        {
-          "id": index + 1,
-          "priority": 1,
-          "action": {
-            "type": "redirect",
-            "redirect": {
-              "regexSubstitution": "http://localhost:4000"
-            }
-          },
-          "condition": {
-            "regexFilter": "^https://chezgab.ch/lights/protected",
-            "resourceTypes": [
-              "main_frame", "sub_frame", "xmlhttprequest"
-            ],
-            "requestMethods": [
-              "get",
-              "put",
-              "post",
-              "delete"
-            ]
+
+    const redirectRules: Rule[] = [];
+    const headerSwapRules: Rule[] = [];
+    rules.forEach((rule, index) => {
+      const newRedirectRule: Rule = {
+        id: index + 1,
+        action: {
+          type: RuleActionType.REDIRECT,
+          redirect: {
+            regexSubstitution: rule.urlTo
           }
-        }
-      ];*/
-      chrome.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: oldRules,
-        // addRules: redirectRules
-      }, () => console.log(chrome.runtime.lastError))
-  })
-
-
-    /*const fn = (info) => {
-      const trailing = info.url.replace(rule.urlFrom, '');
-      return {
-        redirectUrl: rule.urlTo + trailing,
+        },
+        condition: {
+          regexFilter: rule.urlFrom,
+          resourceTypes: [ResourceType.XMLHTTPREQUEST]
+        },
+        priority: 1
       }
-    }
-    requestFunctions.push(fn);
+      redirectRules.push(newRedirectRule);
 
-    const headerFn = (info) => {
-      rule.headersToReplace.forEach((header) => {
-        const headerFromDetails = info.requestHeaders.find((h) => {
-          return h.name === header.headerName;
-        });
-        if (headerFromDetails) {
-          headerFromDetails.value = header.headerValue;
-        } else {
-          info.requestHeaders.push({
-            name: header.headerName,
-            value: header.headerValue
-          });
-        }
-      });
-      return {
-        requestHeaders: info.requestHeaders
+      if (rule.headersToReplace && rule.headersToReplace.length > 0) {
+        const newHeaderRule: Rule = {
+          id: rules.length * (index + 2),
+          priority: 1,
+          action: {
+            type: RuleActionType.MODIFY_HEADERS,
+            requestHeaders: rule.headersToReplace.map(r => {
+              return {
+                header: r.headerName, value: r.headerValue, operation: HeaderOperation.SET
+              }
+            })
+          },
+          condition: {
+            regexFilter: rule.urlTo,
+            resourceTypes: [ResourceType.XMLHTTPREQUEST]
+          }
+        };
+        headerSwapRules.push(newHeaderRule);
       }
-    }
+    });
 
-    headerFunctions.push(headerFn);
-
-    chrome.webRequest.onBeforeRequest.addListener(fn, { urls: [rule.urlFrom + '*'] }, ['blocking']);
-    chrome.webRequest.onBeforeSendHeaders.addListener(headerFn, { urls: [rule.urlTo + '/!*'] },
-      ['requestHeaders', 'blocking']);*/
+    chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: oldRules,
+      addRules: redirectRules.concat(headerSwapRules)
+    }, () => {
+      console.log(chrome.runtime.lastError);
+      if (chrome.runtime.lastError) {
+        sendResponse(chrome.runtime.lastError);
+      }
+    });
+  });
   sendResponse('OK');
 });

@@ -1,10 +1,12 @@
-import { addAction, RedirectionRule, useRules } from '../../App';
+import { addAction, useRules } from '../../App';
 import { useState } from 'react';
+import { RedirectionRule } from '../../model';
 
 export function Header() {
   const { dispatch, state } = useRules();
   const [ruleName, changeName] = useState('');
   const [updateOk, updateUpdateOk] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const sendRules = (rules: RedirectionRule[]) => {
     chrome.runtime.sendMessage({ rules }, response => {
@@ -13,15 +15,19 @@ export function Header() {
         setTimeout(() => {
           updateUpdateOk(false);
         }, 1000);
+      } else {
+        setErrorMessage(response);
       }
     });
   }
 
   return <>
     <div className={'w-100 d-flex p-2'}>
-      <button className={'btn btn-primary btn-sm'} onClick={() => sendRules(state.rules)}>Update</button>
+      <button className={'btn btn-primary btn-sm'} onClick={() => sendRules(state.rules.filter(rule => rule.active))}>
+        Update
+      </button>
       <span className={'d-flex justify-content-center align-items-center'}>
-        {updateOk ? <i className={'bi-check-lg text-success ms-2'} /> : null}
+        {updateOk ? <i className={'bi-check-lg text-success ms-2'} /> : errorMessage}
       </span>
     </div>
     <div className={'d-flex p-2'}>
@@ -29,7 +35,8 @@ export function Header() {
               onClick={() => {
                 dispatch && dispatch(addAction(ruleName));
                 changeName('');
-              }}>Add new rule
+              }}>
+        Add new rule
       </button>
       <input onInput={(e) => changeName((e.target as HTMLInputElement).value)}
              className={'flex'}

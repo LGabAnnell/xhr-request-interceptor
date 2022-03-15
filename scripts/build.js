@@ -132,10 +132,12 @@ checkBrowsers(paths.appPath, isInteractive)
   });*/
 
 // Create the production build and print the deployment instructions.
+
+const confBackground = require(path.resolve('./webpack.background.config.js'));
 function build(previousFileSizes) {
   console.log('Creating an optimized production build...');
 
-  webpack(config, (err, stats) => {
+  webpack([config, confBackground], (err, stats) => {
     if (err) {
       console.log(err);
       return;

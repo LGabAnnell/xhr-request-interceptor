@@ -8,3 +8,7 @@ export interface RedirectionRule {
   }[];
   active?: boolean;
 }
+
+export interface RuleMessage {
+  rules: RedirectionRule[];
+}

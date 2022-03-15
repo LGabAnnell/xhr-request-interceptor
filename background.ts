@@ -2,22 +2,25 @@ import Rule = chrome.declarativeNetRequest.Rule;
 import RuleActionType = chrome.declarativeNetRequest.RuleActionType;
 import ResourceType = chrome.declarativeNetRequest.ResourceType;
 import HeaderOperation = chrome.declarativeNetRequest.HeaderOperation;
-import { RedirectionRule } from './src/model'
+import { RuleMessage } from './src/model'
 
-chrome.runtime.onMessage.addListener(({ rules }: { rules: RedirectionRule[] }, _1, sendResponse) => {
-  chrome.declarativeNetRequest.getDynamicRules(res => {
-    let oldRules: number[];
-    if (res && res.length > 0) {
-      oldRules = res.map(r => r.id);
+chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _1, sendResponse) => {
+  let idIncrementer = 1;
+  const promise = new Promise(async resolve => {
+    const existingDynamicRules = await chrome.declarativeNetRequest.getDynamicRules();
+
+    let oldRuleIDs: number[];
+    if (existingDynamicRules && existingDynamicRules.length > 0) {
+      oldRuleIDs = existingDynamicRules.map(r => r.id);
     } else {
-      oldRules = [];
+      oldRuleIDs = [];
     }
 
     const redirectRules: Rule[] = [];
     const headerSwapRules: Rule[] = [];
-    rules.forEach((rule, index) => {
+    rules.forEach((rule) => {
       const newRedirectRule: Rule = {
-        id: index + 1,
+        id: idIncrementer++,
         action: {
           type: RuleActionType.REDIRECT,
           redirect: {
@@ -34,7 +37,7 @@ chrome.runtime.onMessage.addListener(({ rules }: { rules: RedirectionRule[] }, _
 
       if (rule.headersToReplace && rule.headersToReplace.length > 0) {
         const newHeaderRule: Rule = {
-          id: rules.length * (index + 2),
+          id: idIncrementer++,
           priority: 1,
           action: {
             type: RuleActionType.MODIFY_HEADERS,
@@ -54,14 +57,16 @@ chrome.runtime.onMessage.addListener(({ rules }: { rules: RedirectionRule[] }, _
     });
 
     chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: oldRules,
+      removeRuleIds: oldRuleIDs,
       addRules: redirectRules.concat(headerSwapRules)
     }, () => {
-      console.log(chrome.runtime.lastError);
       if (chrome.runtime.lastError) {
-        sendResponse(chrome.runtime.lastError);
+        resolve(chrome.runtime.lastError);
+      } else {
+        resolve({ message: 'OK' });
       }
     });
   });
-  sendResponse('OK');
+  promise.then(sendResponse);
+  return true;
 });

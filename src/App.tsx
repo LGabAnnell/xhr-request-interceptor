@@ -21,6 +21,7 @@ export interface Action {
   };
   headerIdx?: number;
   active?: boolean;
+  filterString?: string;
 }
 
 export const updateRuleActive = (idx: number, active: boolean): Action => {
@@ -64,7 +65,7 @@ export const removeAction: (idx: number) => Action = (idx) => {
   }
 }
 
-export const addAction: (name: string) => Action = name => {
+export const addRuleAction: (name: string) => Action = name => {
   return {
     type: 'add',
     ruleName: name
@@ -95,15 +96,16 @@ export const updateUrlToAction: (urlTo: string, idx: number) => Action = (urlTo,
   }
 }
 
-const initialRules = localStorage.getItem('RULES')
+const initialRules = localStorage.getItem('RULES');
 
 const RuleContext = React.createContext<{ state: RuleState, dispatch?: (action: Action) => void }>({
   state: {
-    rules: initialRules ? JSON.parse(initialRules) : []
+    rules: initialRules ? JSON.parse(initialRules) : [],
   }
-})
+});
 
 const ruleReducer = (state: RuleState, action: Action) => {
+  const rules = state.rules;
   switch (action.type) {
     case 'add': {
       const newRules = [...state.rules, { name: action.ruleName }]
@@ -120,83 +122,60 @@ const ruleReducer = (state: RuleState, action: Action) => {
       }
     }
     case 'updateUrlFrom': {
-      const rules = state.rules
       const idx = rules.findIndex((_, idx) => idx === action.idx)
       rules[idx].urlFrom = action.ruleUrl ?? ''
-      localStorage.setItem('RULES', JSON.stringify(rules))
-      return {
-        rules
-      }
+      break;
     }
     case 'updateName': {
-      const rules = state.rules
-      const idx = rules.findIndex((_, idx) => idx === action.idx)
+      const idx = rules.findIndex((_, idx) => idx === action.idx);
       rules[idx].name = action.ruleName ?? ''
-      localStorage.setItem('RULES', JSON.stringify(rules))
-      return {
-        rules
-      }
+      break;
     }
     case 'updateUrlTo': {
       const rules = state.rules
-      rules[action.idx as number].urlTo = action.urlTo ?? ''
-      localStorage.setItem('RULES', JSON.stringify(rules))
-      return {
-        rules
-      }
+      rules[action.idx as number].urlTo = action.urlTo ?? '';
+      break;
     }
     case 'updateHeaders': {
-      const rules = state.rules;
       // @ts-ignore
       rules[action.idx].headersToReplace[action.headerIdx] = action.headers as {
         headerName: string,
         headerValue: string
       };
-      localStorage.setItem('RULES', JSON.stringify(rules));
-      return {
-        rules
-      };
+      break;
     }
     case 'newHeader': {
-      const rules = state.rules;
       rules[action.idx as number].headersToReplace?.push({
         headerName: 'Authorization',
         headerValue: ''
       });
-      localStorage.setItem('RULES', JSON.stringify(rules));
-      return {
-        rules
-      };
+      break;
     }
     case 'removeHeader': {
-      const rules = state.rules;
       //@ts-ignore
       rules[action.idx].headersToReplace = rules[action.idx].headersToReplace
         .filter((_: any, idx: number) => idx !== action.headerIdx);
-      localStorage.setItem('RULES', JSON.stringify(rules));
-      return {
-        rules
-      };
+      break;
     }
     case 'updateRuleActive': {
-      const rules = state.rules;
       // @ts-ignore
       rules[action.idx].active = action.active;
-      localStorage.setItem('RULES', JSON.stringify(rules));
-      return {
-        rules
-      };
+      break;
     }
     default:
       return {
         rules: []
       }
   }
+  localStorage.setItem('RULES', JSON.stringify(rules));
+  return {
+    rules
+  };
 }
 
 const RuleProvider = ({ children }: { children: React.ReactElement[] | React.ReactElement }) => {
-  const rules = useRules()
-  const [state, dispatch] = React.useReducer(ruleReducer, rules.state)
+  const originalState = useRules()
+  const [state, dispatch] = React.useReducer(ruleReducer, originalState.state)
 
   state.rules.forEach(rule => {
     if (!rule.headersToReplace) {
@@ -206,7 +185,8 @@ const RuleProvider = ({ children }: { children: React.ReactElement[] | React.Rea
 
   const value = {
     state: {
-      rules: state.rules
+      rules: state.rules,
+      filteredRules: state.rules
     },
     dispatch
   }

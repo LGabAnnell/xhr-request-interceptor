@@ -2,8 +2,5 @@
   "files": ["background.ts"],
   "compilerOptions": {
     "outDir": "build",
-    "target": "ES6",
-    "moduleResolution": "Node",
-    "module": "none",
   }
 }

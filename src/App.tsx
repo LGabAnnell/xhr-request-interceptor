@@ -10,7 +10,7 @@ export interface RuleState {
 
 export interface Action {
   type: 'add' | 'remove' | 'updateUrlFrom' | 'updateName' | 'updateUrlTo' | 'updateHeaders' | 'newHeader'
-    | 'removeHeader' | 'updateRuleActive';
+    | 'removeHeader' | 'updateRuleActive' | 'updateAllActive';
   idx?: number;
   ruleName?: string;
   ruleUrl?: string;
@@ -22,6 +22,13 @@ export interface Action {
   headerIdx?: number;
   active?: boolean;
   filterString?: string;
+}
+
+export const updateActiveAllAction = (enabled: boolean): Action => {
+  return {
+    type: 'updateAllActive',
+    active: enabled
+  }
 }
 
 export const updateRuleActive = (idx: number, active: boolean): Action => {
@@ -160,6 +167,12 @@ const ruleReducer = (state: RuleState, action: Action) => {
     case 'updateRuleActive': {
       // @ts-ignore
       rules[action.idx].active = action.active;
+      break;
+    }
+    case 'updateAllActive': {
+      rules.forEach(rule => {
+        rule.active = action.active;
+      });
       break;
     }
     default:

@@ -33,6 +33,7 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _1, sendResponse) 
         },
         priority: 1
       }
+
       redirectRules.push(newRedirectRule);
 
       if (rule.headersToReplace && rule.headersToReplace.length > 0) {
@@ -56,16 +57,15 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _1, sendResponse) 
       }
     });
 
-    chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: oldRuleIDs,
-      addRules: redirectRules.concat(headerSwapRules)
-    }, () => {
-      if (chrome.runtime.lastError) {
-        resolve(chrome.runtime.lastError);
-      } else {
-        resolve({ message: 'OK' });
-      }
-    });
+    try {
+      await chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: oldRuleIDs,
+        addRules: redirectRules.concat(headerSwapRules)
+      });
+      resolve({ message: 'OK' });
+    } catch (e) {
+      resolve({ message: e.message });
+    }
   });
   promise.then(sendResponse);
   return true;

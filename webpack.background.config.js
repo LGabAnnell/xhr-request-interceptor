@@ -1,4 +1,4 @@
-const path = require('path')
+const path = require('path');
 module.exports = {
   mode: 'production',
   entry: './background.ts',
@@ -11,4 +11,4 @@ module.exports = {
       { test: /.*.ts$/, loader: 'ts-loader', options: { configFile: './tsconfig.background.json' } }
     ]
   }
-}
+};

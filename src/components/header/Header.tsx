@@ -1,4 +1,4 @@
-import { addRuleAction, useRules } from '../../App';
+import { addRuleAction, updateActiveAllAction, useRules } from '../../App';
 import { useState } from 'react';
 import { RedirectionRule } from '../../model';
 
@@ -43,7 +43,8 @@ export function Header() {
     <div className={'d-flex p-2'}>
       <div className="form-check form-switch mx-2 d-flex align-items-center">
         <input className="form-check-input me-2" style={{ height: '2em', width: '4em' }}
-               type="checkbox" role="switch" id={'deactivateAll'}/>
+               type="checkbox" role="switch" id={'deactivateAll'}
+               onChange={e => dispatch && dispatch(updateActiveAllAction(e.target.checked))}/>
         <label className="form-check-label" htmlFor={'deactivateAll'}>Enable / disable all</label>
       </div>
     </div>

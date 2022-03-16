@@ -1,6 +1,9 @@
 {
-  "files": ["background.ts"],
+  "include": [
+    "background.ts"
+  ],
   "compilerOptions": {
-    "outDir": "build",
+    "noImplicitAny": true,
+    "strict": true
   }
 }

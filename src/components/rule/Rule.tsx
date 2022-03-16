@@ -23,8 +23,8 @@ export const Rule = ({ idx }: RuleProps) => {
   const active = state.rules[idx].active;
 
   return <div className={'w-100 border border-success m-2 p-2 d-flex flex-column align-items-start'}>
-    <div className="form-check form-switch">
-      <input checked={active} className="form-check-input"
+    <div className="form-check form-switch d-flex justify-content-center align-items-center pb-2">
+      <input checked={active} className="form-check-input me-1" style={{ height: '1.5em', width: '3em' }}
              onChange={(e) => dispatch && dispatch(updateRuleActive(idx, e.target.checked))}
              type="checkbox" role="switch" id={'flexSwitchCheckDefault' + idx}/>
       <label className="form-check-label" htmlFor={'flexSwitchCheckDefault' + idx}>Enable / disable</label>
@@ -41,7 +41,8 @@ export const Rule = ({ idx }: RuleProps) => {
     <button className={'btn btn-primary btn-sm'} onClick={() => dispatch && dispatch(newHeaderAction(idx))}>
       Add header to change
     </button>
-    { ruleHeaders?.map((h, hIdx) => <RuleHeaders headerIdx={hIdx} idx={idx} key={hIdx}
+    { ruleHeaders?.map((h, hIdx) => <RuleHeaders headerIdx={hIdx}
+                                                 idx={idx} key={hIdx}
                                                  headerName={h.headerName} headerValue={h.headerValue} />) }
   </div>;
 };

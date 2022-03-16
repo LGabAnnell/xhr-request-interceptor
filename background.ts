@@ -44,7 +44,7 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _1, sendResponse) 
             type: RuleActionType.MODIFY_HEADERS,
             requestHeaders: rule.headersToReplace.map(r => {
               return {
-                header: r.headerName, value: r.headerValue, operation: HeaderOperation.SET
+                header: r.headerName as string, value: r.headerValue as string, operation: HeaderOperation.SET
               }
             })
           },
@@ -63,8 +63,8 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _1, sendResponse) 
         addRules: redirectRules.concat(headerSwapRules)
       });
       resolve({ message: 'OK' });
-    } catch (e) {
-      resolve({ message: e.message });
+    } catch (e: any) {
+      resolve({ message: e.message as string });
     }
   });
   promise.then(sendResponse);

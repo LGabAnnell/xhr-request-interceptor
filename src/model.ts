@@ -2,11 +2,14 @@ export interface RedirectionRule {
   name?: string;
   urlFrom?: string;
   urlTo?: string;
-  headersToReplace?: {
-    headerName?: string,
-    headerValue?: string
-  }[];
+  headersToReplace?: RuleHeader[];
   active?: boolean;
+  id?: number;
+}
+
+export interface RuleHeader {
+  headerName?: string,
+  headerValue?: string
 }
 
 export interface RuleMessage {

@@ -2,17 +2,27 @@ import React from 'react'
 import './App.css'
 import { Header } from './components/header/Header'
 import { Rules } from './components/rules/Rules'
-import { RedirectionRule } from './model';
+import { RedirectionRule, RuleHeader } from './model';
 
 export interface RuleState {
   rules: RedirectionRule[];
 }
 
+const getNewID = (rules: RedirectionRule[]): number => {
+  let max = 0;
+  rules.forEach(rule => {
+    if (rule && rule.id && rule.id > max) {
+      max = rule.id;
+    }
+  });
+  return max + 1;
+};
+
 export interface Action {
   type: 'add' | 'remove' | 'updateUrlFrom' | 'updateName' | 'updateUrlTo' | 'updateHeaders' | 'newHeader'
     | 'removeHeader' | 'updateRuleActive' | 'updateAllActive';
-  idx?: number;
   ruleName?: string;
+  id?: number;
   ruleUrl?: string;
   urlTo?: string;
   headers?: {
@@ -31,74 +41,73 @@ export const updateActiveAllAction = (enabled: boolean): Action => {
   }
 }
 
-export const updateRuleActive = (idx: number, active: boolean): Action => {
+export const updateRuleActive = (id: number, active: boolean): Action => {
   return {
     type: 'updateRuleActive',
     active,
-    idx
+    id
   }
 }
 
-export const updateHeaderAction: (headerName: string, headerValue: string, idx: number, headerIdx: number) => Action =
-  (headerName, headerValue, idx, headerIdx) => ({
+export const updateHeaderAction = (headerName: string, headerValue: string, id: number, headerIdx: number): Action => ({
     type: 'updateHeaders',
     headers: {
       headerName,
       headerValue
     },
-    idx,
+    id,
     headerIdx
   });
 
-export const removeHeaderAction: (ruleIdx: number, headerIdx: number) => Action = (ruleIdx, headerIdx) => {
+export const removeHeaderAction = (ruleId: number, headerIdx: number): Action => {
   return {
     type: 'removeHeader',
-    idx: ruleIdx,
+    id: ruleId,
     headerIdx
   }
 }
 
-export const newHeaderAction = (idx: number) => {
+export const newHeaderAction = (id: number): Action => {
   return {
     type: 'newHeader',
-    idx
-  } as Action;
+    id
+  };
 };
 
-export const removeAction: (idx: number) => Action = (idx) => {
+export const removeAction = (id: number): Action => {
   return {
     type: 'remove',
-    idx
+    id
   }
 }
 
-export const addRuleAction: (name: string) => Action = name => {
+export const addRuleAction = (name: string): Action => {
   return {
     type: 'add',
     ruleName: name
   }
 }
 
-export const updateURLAction: (url: string, idx: number) => Action = (url, idx) => {
+export const updateURLAction = (url: string, id: number): Action => {
   return {
     type: 'updateUrlFrom',
-    idx,
+    id,
     ruleUrl: url
   }
 }
 
-export const updateNameAction: (name: string, idx: number) => Action = (name, idx) => {
+export const updateNameAction = (name: string, id: number): Action => {
   return {
     type: 'updateName',
-    idx,
+    id,
     ruleName: name
   }
 }
 
-export const updateUrlToAction: (urlTo: string, idx: number) => Action = (urlTo, idx) => {
+export const updateUrlToAction = (urlTo: string, id: number): Action => {
   return {
     type: 'updateUrlTo',
-    idx,
+    id,
     urlTo: urlTo
   }
 }
@@ -115,44 +124,44 @@ const ruleReducer = (state: RuleState, action: Action) => {
   const rules = state.rules;
   switch (action.type) {
     case 'add': {
-      const newRules = [...state.rules, { name: action.ruleName }]
+      const newRules = [...state.rules, { name: action.ruleName, id: getNewID(state.rules) }]
       localStorage.setItem('RULES', JSON.stringify(newRules))
       return {
         rules: newRules
       }
     }
     case 'remove': {
-      const newRules = state.rules.filter((_, idx) => idx !== action.idx)
+      const newRules = state.rules.filter(rule => {
+        return rule.id !== action.id
+      });
+      console.log(newRules)
       localStorage.setItem('RULES', JSON.stringify(newRules))
       return {
         rules: newRules
-      }
+      };
     }
     case 'updateUrlFrom': {
-      const idx = rules.findIndex((_, idx) => idx === action.idx)
+      const idx = rules.findIndex(rule => rule.id === action.id);
       rules[idx].urlFrom = action.ruleUrl ?? ''
       break;
     }
     case 'updateName': {
-      const idx = rules.findIndex((_, idx) => idx === action.idx);
+      const idx = rules.findIndex(rule => rule.id === action.id);
       rules[idx].name = action.ruleName ?? ''
       break;
     }
     case 'updateUrlTo': {
-      const rules = state.rules
-      rules[action.idx as number].urlTo = action.urlTo ?? '';
+      const rules = state.rules;
+      (rules.find(rule => rule.id === action.id) as RedirectionRule).urlTo = action.urlTo ?? '';
       break;
     }
     case 'updateHeaders': {
       // @ts-ignore
-      rules[action.idx].headersToReplace[action.headerIdx] = action.headers as {
-        headerName: string,
-        headerValue: string
-      };
+      rules.find(r => r.id === action.id).headersToReplace[action.headerIdx] = action.headers as RuleHeader;
       break;
     }
     case 'newHeader': {
-      rules[action.idx as number].headersToReplace?.push({
+      (rules.find(rule => rule.id === action.id) as RedirectionRule).headersToReplace?.push({
         headerName: 'Authorization',
         headerValue: ''
       });
@@ -160,13 +169,14 @@ const ruleReducer = (state: RuleState, action: Action) => {
     }
     case 'removeHeader': {
       //@ts-ignore
-      rules[action.idx].headersToReplace = rules[action.idx].headersToReplace
+      const rule = rules.find(r => r.id === action.id) as RedirectionRule;
+      rule.headersToReplace = (rule.headersToReplace as RuleHeader[])
         .filter((_: any, idx: number) => idx !== action.headerIdx);
       break;
     }
     case 'updateRuleActive': {
       // @ts-ignore
-      rules[action.idx].active = action.active;
+      rules.find(r => r.id === action.id).active = action.active;
       break;
     }
     case 'updateAllActive': {
@@ -190,7 +200,7 @@ const RuleProvider = ({ children }: { children: React.ReactElement[] | React.Rea
   const originalState = useRules()
   const [state, dispatch] = React.useReducer(ruleReducer, originalState.state)
 
-  state.rules.forEach(rule => {
+  state.rules.forEach((rule) => {
     if (!rule.headersToReplace) {
       rule.headersToReplace = [];
     }

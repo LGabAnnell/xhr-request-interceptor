@@ -50,14 +50,14 @@ export const updateRuleActive = (id: number, active: boolean): Action => {
 }
 
 export const updateHeaderAction = (headerName: string, headerValue: string, id: number, headerIdx: number): Action => ({
-    type: 'updateHeaders',
-    headers: {
-      headerName,
-      headerValue
-    },
-    id,
-    headerIdx
-  });
+  type: 'updateHeaders',
+  headers: {
+    headerName,
+    headerValue
+  },
+  id,
+  headerIdx
+});
 
 export const removeHeaderAction = (ruleId: number, headerIdx: number): Action => {
   return {
@@ -118,7 +118,8 @@ const RuleContext = React.createContext<{ state: RuleState, dispatch: (action: A
   state: {
     rules: initialRules ? JSON.parse(initialRules) : [],
   },
-  dispatch: () => {}
+  dispatch: () => {
+  }
 });
 
 const ruleReducer = (state: RuleState, action: Action) => {
@@ -169,7 +170,6 @@ const ruleReducer = (state: RuleState, action: Action) => {
       break;
     }
     case 'removeHeader': {
-      //@ts-ignore
       const rule = rules.find(r => r.id === action.id) as RedirectionRule;
       rule.headersToReplace = (rule.headersToReplace as RuleHeader[])
         .filter((_: any, idx: number) => idx !== action.headerIdx);
@@ -227,12 +227,12 @@ export const useRules = () => {
 
 function App() {
   return (
-    <div className="App">
-      <RuleProvider>
-        <Header/>
-        <Rules/>
-      </RuleProvider>
-    </div>
+    <RuleProvider>
+      <div className="App" style={{position: 'relative'}}>
+        <Header />
+        <Rules />
+      </div>
+    </RuleProvider>
   )
 }
 

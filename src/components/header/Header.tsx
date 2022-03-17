@@ -21,7 +21,7 @@ export function Header() {
     });
   };
 
-  return <>
+  return <div className={'position-sticky top-0'} style={{background: 'white'}}>
     <div className={'w-100 d-flex p-2'}>
       <button className={'btn btn-primary btn-sm'} onClick={() => sendRules(state.rules.filter(rule => rule.active))}>
         Update
@@ -49,5 +49,5 @@ export function Header() {
         <label className="form-check-label" htmlFor={'deactivateAll'}>Enable / disable all</label>
       </div>
     </div>
-  </>;
+  </div>;
 }

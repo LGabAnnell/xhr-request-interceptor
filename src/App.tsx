@@ -114,10 +114,11 @@ export const updateUrlToAction = (urlTo: string, id: number): Action => {
 
 const initialRules = localStorage.getItem('RULES');
 
-const RuleContext = React.createContext<{ state: RuleState, dispatch?: (action: Action) => void }>({
+const RuleContext = React.createContext<{ state: RuleState, dispatch: (action: Action) => void }>({
   state: {
     rules: initialRules ? JSON.parse(initialRules) : [],
-  }
+  },
+  dispatch: () => {}
 });
 
 const ruleReducer = (state: RuleState, action: Action) => {
@@ -197,14 +198,14 @@ const ruleReducer = (state: RuleState, action: Action) => {
 }
 
 const RuleProvider = ({ children }: { children: React.ReactElement[] | React.ReactElement }) => {
-  const originalState = useRules()
+  const originalState = useRules();
   const [state, dispatch] = React.useReducer(ruleReducer, originalState.state)
 
   state.rules.forEach((rule) => {
     if (!rule.headersToReplace) {
       rule.headersToReplace = [];
     }
-  })
+  });
 
   const value = {
     state: {
@@ -212,8 +213,8 @@ const RuleProvider = ({ children }: { children: React.ReactElement[] | React.Rea
       filteredRules: state.rules
     },
     dispatch
-  }
-  return <RuleContext.Provider value={value}>{children}</RuleContext.Provider>
+  };
+  return <RuleContext.Provider value={value}>{children}</RuleContext.Provider>;
 }
 
 export const useRules = () => {
@@ -221,7 +222,7 @@ export const useRules = () => {
   if (ctx === undefined) {
     throw new Error('useRules must be used within a CountProvider')
   }
-  return ctx
+  return ctx;
 }
 
 function App() {

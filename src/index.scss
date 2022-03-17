@@ -30,6 +30,6 @@ label {
 }
 
 .form-control:focus {
-  border-color: #28a745;
+  border-color: $success;
   box-shadow: 0 0 0 0.2rem rgba($success, 0.2);
 }

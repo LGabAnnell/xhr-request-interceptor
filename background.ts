@@ -4,10 +4,10 @@ import ResourceType = chrome.declarativeNetRequest.ResourceType;
 import HeaderOperation = chrome.declarativeNetRequest.HeaderOperation;
 import { RuleMessage } from './src/model'
 
-chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _1, sendResponse) => {
-  // start at one, rules can't have and ID less than one
+chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _, sendResponse) => {
+  // start at one, rules can't have an ID less than one
   let idIncrementer = 1;
-  const promise = new Promise(async resolve => {
+  const promise = new Promise<{ message: string }>(async resolve => {
     // get all rules, so we can remove them
     const existingDynamicRules = await chrome.declarativeNetRequest.getDynamicRules();
 
@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _1, sendResponse) 
           regexFilter: rule.urlFrom,
           resourceTypes: [ResourceType.XMLHTTPREQUEST]
         },
-      }
+      };
 
       redirectRules.push(newRedirectRule);
 
@@ -46,8 +46,8 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _1, sendResponse) 
             type: RuleActionType.MODIFY_HEADERS,
             requestHeaders: rule.headersToReplace.map(r => {
               return {
-                header: r.headerName as string, value: r.headerValue as string, operation: HeaderOperation.SET
-              }
+                header: r.headerName, value: r.headerValue, operation: HeaderOperation.SET
+              };
             })
           },
           condition: {
@@ -72,7 +72,7 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _1, sendResponse) 
       });
       resolve({ message: 'OK' });
     } catch (e: any) {
-      resolve({ message: e.message as string });
+      resolve({ message: e.message });
     }
   });
   promise.then(sendResponse);

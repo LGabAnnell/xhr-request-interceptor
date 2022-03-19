@@ -21,27 +21,27 @@ const getNewID = (rules: RedirectionRule[]): number => {
 export interface Action {
   type: 'add' | 'remove' | 'updateUrlFrom' | 'updateName' | 'updateUrlTo' | 'updateHeaders' | 'newHeader'
     | 'removeHeader' | 'updateRuleActive' | 'updateAllActive';
-  ruleName?: string;
-  id?: number;
-  ruleUrl?: string;
-  urlTo?: string;
-  headers?: {
+  ruleName: string;
+  id: number;
+  ruleUrl: string;
+  urlTo: string;
+  headers: {
     headerName: string,
     headerValue: string
   };
-  headerIdx?: number;
-  active?: boolean;
-  filterString?: string;
+  headerIdx: number;
+  active: boolean;
+  filterString: string;
 }
 
-export const updateActiveAllAction = (enabled: boolean): Action => {
+export const updateActiveAllAction = (enabled: boolean): Partial<Action> => {
   return {
     type: 'updateAllActive',
     active: enabled
   }
 }
 
-export const updateRuleActive = (id: number, active: boolean): Action => {
+export const updateRuleActive = (id: number, active: boolean): Partial<Action> => {
   return {
     type: 'updateRuleActive',
     active,
@@ -49,7 +49,8 @@ export const updateRuleActive = (id: number, active: boolean): Action => {
   }
 }
 
-export const updateHeaderAction = (headerName: string, headerValue: string, id: number, headerIdx: number): Action => ({
+export const updateHeaderAction = (headerName: string, headerValue: string, id: number, headerIdx: number):
+    Partial<Action> => ({
   type: 'updateHeaders',
   headers: {
     headerName,
@@ -59,7 +60,7 @@ export const updateHeaderAction = (headerName: string, headerValue: string, id: 
   headerIdx
 });
 
-export const removeHeaderAction = (ruleId: number, headerIdx: number): Action => {
+export const removeHeaderAction = (ruleId: number, headerIdx: number): Partial<Action> => {
   return {
     type: 'removeHeader',
     id: ruleId,
@@ -67,28 +68,28 @@ export const removeHeaderAction = (ruleId: number, headerIdx: number): Action =>
   }
 }
 
-export const newHeaderAction = (id: number): Action => {
+export const newHeaderAction = (id: number): Partial<Action> => {
   return {
     type: 'newHeader',
     id
   };
 };
 
-export const removeAction = (id: number): Action => {
+export const removeAction = (id: number): Partial<Action> => {
   return {
     type: 'remove',
     id
   }
 }
 
-export const addRuleAction = (name: string): Action => {
+export const addRuleAction = (name: string): Partial<Action> => {
   return {
     type: 'add',
     ruleName: name
   }
 }
 
-export const updateURLAction = (url: string, id: number): Action => {
+export const updateURLAction = (url: string, id: number): Partial<Action> => {
   return {
     type: 'updateUrlFrom',
     id,
@@ -96,7 +97,7 @@ export const updateURLAction = (url: string, id: number): Action => {
   }
 }
 
-export const updateNameAction = (name: string, id: number): Action => {
+export const updateNameAction = (name: string, id: number): Partial<Action> => {
   return {
     type: 'updateName',
     id,
@@ -104,7 +105,7 @@ export const updateNameAction = (name: string, id: number): Action => {
   }
 }
 
-export const updateUrlToAction = (urlTo: string, id: number): Action => {
+export const updateUrlToAction = (urlTo: string, id: number): Partial<Action> => {
   return {
     type: 'updateUrlTo',
     id,
@@ -114,19 +115,18 @@ export const updateUrlToAction = (urlTo: string, id: number): Action => {
 
 const initialRules = localStorage.getItem('RULES');
 
-const RuleContext = React.createContext<{ state: RuleState, dispatch: (action: Action) => void }>({
+const RuleContext = React.createContext<{ state: RuleState, dispatch: React.Dispatch<Partial<Action>> }>({
   state: {
     rules: initialRules ? JSON.parse(initialRules) : [],
   },
-  dispatch: () => {
-  }
+  dispatch: () => {}
 });
 
-const ruleReducer = (state: RuleState, action: Action) => {
+const ruleReducer = (state: RuleState, action: Partial<Action>) => {
   const rules = state.rules;
   switch (action.type) {
     case 'add': {
-      const newRules = [...state.rules, { name: action.ruleName, id: getNewID(state.rules) }]
+      const newRules = [...state.rules, { name: action.ruleName, id: getNewID(state.rules) } as RedirectionRule]
       localStorage.setItem('RULES', JSON.stringify(newRules))
       return {
         rules: newRules
@@ -154,7 +154,8 @@ const ruleReducer = (state: RuleState, action: Action) => {
     }
     case 'updateUrlTo': {
       const rules = state.rules;
-      (rules.find(rule => rule.id === action.id) as RedirectionRule).urlTo = action.urlTo ?? '';
+      // @ts-ignore
+      rules.find(rule => rule.id === action.id).urlTo = action.urlTo ?? '';
       break;
     }
     case 'updateHeaders': {
@@ -163,15 +164,17 @@ const ruleReducer = (state: RuleState, action: Action) => {
       break;
     }
     case 'newHeader': {
-      (rules.find(rule => rule.id === action.id) as RedirectionRule).headersToReplace?.push({
+      // @ts-ignore
+      rules.find(rule => rule.id === action.id).headersToReplace?.push({
         headerName: 'Authorization',
         headerValue: ''
       });
       break;
     }
     case 'removeHeader': {
-      const rule = rules.find(r => r.id === action.id) as RedirectionRule;
-      rule.headersToReplace = (rule.headersToReplace as RuleHeader[])
+      const rule = rules.find(r => r.id === action.id);
+      // @ts-ignore
+      rule.headersToReplace = rule.headersToReplace
         .filter((_: any, idx: number) => idx !== action.headerIdx);
       break;
     }
@@ -182,7 +185,8 @@ const ruleReducer = (state: RuleState, action: Action) => {
     }
     case 'updateAllActive': {
       rules.forEach(rule => {
-        rule.active = action.active;
+        if (action.active)
+          rule.active = action.active;
       });
       break;
     }
@@ -209,8 +213,7 @@ const RuleProvider = ({ children }: { children: React.ReactElement[] | React.Rea
 
   const value = {
     state: {
-      rules: state.rules,
-      filteredRules: state.rules
+      rules: state.rules
     },
     dispatch
   };

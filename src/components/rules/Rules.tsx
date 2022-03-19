@@ -13,7 +13,7 @@ export const Rules = () => {
     {
       state.rules.filter(r => r.name?.toLowerCase().includes(inputValue))
         .map((r) => <div className={'w-100 d-flex'} key={r.id}>
-          <Rule id={r.id as number} />
+          <Rule id={r.id} />
         </div>)
     }
   </div>

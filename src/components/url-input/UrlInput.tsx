@@ -1,7 +1,7 @@
 import { Action, useRules } from '../../App';
 
 interface UrlInputProps {
-  actionFunction: (v1: string, v2: number) => Action;
+  actionFunction: (v1: string, v2: number) => Partial<Action>;
   idx: number;
   value: string;
   labelText: string;

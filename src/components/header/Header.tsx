@@ -1,4 +1,4 @@
-import { addRuleAction, updateActiveAllAction, useRules } from '../../App';
+import { addRuleAction, updateActiveAllAction, updateFilter, useRules } from '../../App';
 import { useState } from 'react';
 import { RedirectionRule } from '../../model';
 
@@ -48,6 +48,10 @@ export function Header() {
                onChange={e => dispatch(updateActiveAllAction(e.target.checked))} />
         <label className="form-check-label" htmlFor={'deactivateAll'}>Enable / disable all</label>
       </div>
+    </div>
+    <div className={'d-flex px-2'}>
+      <input placeholder={'Filter'} type="text" className={'form-control'}
+             onInput={e => dispatch(updateFilter((e.target as HTMLInputElement).value))} />
     </div>
   </div>;
 }

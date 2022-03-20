@@ -6,6 +6,7 @@ import { RedirectionRule, RuleHeader } from './model';
 
 export interface RuleState {
   rules: RedirectionRule[];
+  filter: string;
 }
 
 const getNewID = (rules: RedirectionRule[]): number => {
@@ -20,7 +21,7 @@ const getNewID = (rules: RedirectionRule[]): number => {
 
 export interface Action {
   type: 'add' | 'remove' | 'updateUrlFrom' | 'updateName' | 'updateUrlTo' | 'updateHeaders' | 'newHeader'
-    | 'removeHeader' | 'updateRuleActive' | 'updateAllActive';
+    | 'removeHeader' | 'updateRuleActive' | 'updateAllActive' | 'updateFilter';
   ruleName: string;
   id: number;
   ruleUrl: string;
@@ -31,7 +32,7 @@ export interface Action {
   };
   headerIdx: number;
   active: boolean;
-  filterString: string;
+  filter: string;
 }
 
 export const updateActiveAllAction = (enabled: boolean): Partial<Action> => {
@@ -113,23 +114,33 @@ export const updateUrlToAction = (urlTo: string, id: number): Partial<Action> =>
   }
 }
 
+export const updateFilter = (filter: string): Partial<Action> => {
+  return {
+    type: 'updateFilter',
+    filter
+  }
+}
+
 const initialRules = localStorage.getItem('RULES');
 
 const RuleContext = React.createContext<{ state: RuleState, dispatch: React.Dispatch<Partial<Action>> }>({
   state: {
     rules: initialRules ? JSON.parse(initialRules) : [],
+    filter: ''
   },
   dispatch: () => {}
 });
 
 const ruleReducer = (state: RuleState, action: Partial<Action>) => {
   const rules = state.rules;
+  let filter = state.filter ?? '';
   switch (action.type) {
     case 'add': {
       const newRules = [...state.rules, { name: action.ruleName, id: getNewID(state.rules) } as RedirectionRule]
       localStorage.setItem('RULES', JSON.stringify(newRules))
       return {
-        rules: newRules
+        rules: newRules,
+        filter
       }
     }
     case 'remove': {
@@ -139,7 +150,8 @@ const ruleReducer = (state: RuleState, action: Partial<Action>) => {
       console.log(newRules)
       localStorage.setItem('RULES', JSON.stringify(newRules))
       return {
-        rules: newRules
+        rules: newRules,
+        filter
       };
     }
     case 'updateUrlFrom': {
@@ -185,19 +197,24 @@ const ruleReducer = (state: RuleState, action: Partial<Action>) => {
     }
     case 'updateAllActive': {
       rules.forEach(rule => {
-        if (action.active)
-          rule.active = action.active;
+        rule.active = action.active as boolean;
       });
       break;
     }
+    case 'updateFilter': {
+      filter = action.filter ?? '';
+      break
+    }
     default:
       return {
-        rules: []
-      }
+        rules: [],
+        filter
+      };
   }
   localStorage.setItem('RULES', JSON.stringify(rules));
   return {
-    rules
+    rules,
+    filter
   };
 }
 
@@ -213,7 +230,8 @@ const RuleProvider = ({ children }: { children: React.ReactElement[] | React.Rea
 
   const value = {
     state: {
-      rules: state.rules
+      rules: state.rules,
+      filter: state.filter
     },
     dispatch
   };

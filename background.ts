@@ -7,7 +7,7 @@ import { RuleMessage } from './src/model'
 chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _, sendResponse) => {
   // start at one, rules can't have an ID less than one
   let idIncrementer = 1;
-  const promise = new Promise<{ message: string }>(async resolve => {
+  const updateRules = new Promise<{ message: string }>(async resolve => {
     // get all rules, so we can remove them
     const existingDynamicRules = await chrome.declarativeNetRequest.getDynamicRules();
 
@@ -75,7 +75,7 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _, sendResponse) =
       resolve({ message: e.message });
     }
   });
-  promise.then(sendResponse);
+  updateRules.then(sendResponse);
   /*
    * Tells onMessage to wait for async response (use false / don't return anything if synchronous)
    */

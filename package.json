@@ -69,6 +69,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
+    "build:zip": "node scripts/build-zip.js",
     "test": "node scripts/test.js"
   },
   "eslintConfig": {
@@ -153,6 +154,7 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
-    "eslint-plugin-react": "^7.29.4"
+    "eslint-plugin-react": "^7.29.4",
+    "zip-folder": "^1.0.0"
   }
 }

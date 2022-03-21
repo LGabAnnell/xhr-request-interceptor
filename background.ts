@@ -51,7 +51,7 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _, sendResponse) =
             })
           },
           condition: {
-            regexFilter: rule.urlTo,
+            regexFilter: rule.urlFrom,
             resourceTypes: [ResourceType.XMLHTTPREQUEST]
           }
         };

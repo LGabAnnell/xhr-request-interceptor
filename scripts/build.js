@@ -29,9 +29,6 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
   process.exit(1);
 }
 
-const argv = process.argv.slice(2);
-const writeStatsJson = argv.indexOf('--stats') !== -1;
-
 // Generate configuration
 const config = configFactory('production');
 
@@ -50,7 +47,7 @@ checkBrowsers(paths.appPath, isInteractive)
   });
 
 // Create the production build and print the deployment instructions.
-
+const numToNumPlus0 = n => n < 10 ? '0' + n : n;
 const confBackground = require(path.resolve(__dirname + './../webpack.background.config.js'));
 function build() {
   console.log('Creating an optimized production build...');
@@ -76,9 +73,9 @@ function build() {
 
     if (messages.errors.length === 0 && messages.warnings.length === 0) {
       const date = new Date();
-      console.log(date.toLocaleDateString(), date.getHours() < 10 ? '0' + date.getHours() : date.getHours() + ':' +
-          (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':' + (date.getSeconds() < 0 ?
-          '0' + date.getSeconds() : date.getSeconds()), chalk.green('Compiled successfully'));
+      console.log(date.toLocaleDateString(), numToNumPlus0(date.getHours()) + ':' + numToNumPlus0(date.getMinutes()) +
+        ':' + numToNumPlus0(date.getSeconds()),
+        chalk.green('Compiled successfully'));
     }
   });
 }

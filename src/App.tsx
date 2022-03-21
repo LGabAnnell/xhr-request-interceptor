@@ -147,7 +147,6 @@ const ruleReducer = (state: RuleState, action: Partial<Action>) => {
       const newRules = state.rules.filter(rule => {
         return rule.id !== action.id
       });
-      console.log(newRules)
       localStorage.setItem('RULES', JSON.stringify(newRules))
       return {
         rules: newRules,
@@ -203,7 +202,7 @@ const ruleReducer = (state: RuleState, action: Partial<Action>) => {
     }
     case 'updateFilter': {
       filter = action.filter ?? '';
-      break
+      break;
     }
     default:
       return {
@@ -229,10 +228,7 @@ const RuleProvider = ({ children }: { children: React.ReactElement[] | React.Rea
   });
 
   const value = {
-    state: {
-      rules: state.rules,
-      filter: state.filter
-    },
+    state,
     dispatch
   };
   return <RuleContext.Provider value={value}>{children}</RuleContext.Provider>;
@@ -241,7 +237,7 @@ const RuleProvider = ({ children }: { children: React.ReactElement[] | React.Rea
 export const useRules = () => {
   const ctx = React.useContext(RuleContext)
   if (ctx === undefined) {
-    throw new Error('useRules must be used within a CountProvider')
+    throw new Error('useRules must be used within a CountProvider');
   }
   return ctx;
 }

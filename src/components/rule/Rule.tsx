@@ -46,7 +46,7 @@ export const Rule = ({ id }: RuleProps) => {
         Add header to change
       </button>
       {ruleHeaders?.map((h, hIdx) => <RuleHeaders headerIdx={hIdx}
-                                                  ruleID={id as number} key={hIdx}
+                                                  ruleID={id} key={hIdx}
                                                   headerName={h.headerName as string}
                                                   headerValue={h.headerValue as string} />)}
     </div>

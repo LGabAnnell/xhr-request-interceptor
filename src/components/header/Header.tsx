@@ -51,7 +51,7 @@ export function Header() {
     </div>
     <div className={'d-flex px-2'}>
       <input placeholder={'Filter'} type="text" className={'form-control'}
-             onInput={e => dispatch(updateFilter((e.target as HTMLInputElement).value))} />
+             onInput={e => dispatch(updateFilter(e.currentTarget.value))} />
     </div>
   </div>;
 }

@@ -141,11 +141,15 @@ const ruleReducer = (state: RuleState, action: Partial<Action>) => {
       return {
         rules: newRules,
         filter
-      }
+      };
     }
     case 'remove': {
       const newRules = state.rules.filter(rule => {
         return rule.id !== action.id
+      });
+      let start = 1;
+      newRules.forEach(rule => {
+        rule.id = start++;
       });
       localStorage.setItem('RULES', JSON.stringify(newRules))
       return {
@@ -196,7 +200,7 @@ const ruleReducer = (state: RuleState, action: Partial<Action>) => {
     }
     case 'updateAllActive': {
       rules.forEach(rule => {
-        rule.active = action.active as boolean;
+        rule.active = action.active ?? false;
       });
       break;
     }

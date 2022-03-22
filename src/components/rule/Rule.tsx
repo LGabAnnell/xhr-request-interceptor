@@ -39,16 +39,16 @@ export const Rule = ({ id }: RuleProps) => {
           <i className={'bi-trash hover-pointer'} />
         </button>
       </div>
-      <UrlInput labelText={'Url to redirect from'} idx={id} value={ruleUrl as string}
+      <UrlInput labelText={'Url to redirect from'} id={id} value={ruleUrl}
                 actionFunction={updateURLAction} />
-      <UrlInput idx={id} labelText={'Url to redirect to'} value={urlTo as string} actionFunction={updateUrlToAction} />
+      <UrlInput id={id} labelText={'Url to redirect to'} value={urlTo} actionFunction={updateUrlToAction} />
       <button className={'btn btn-primary btn-sm'} onClick={() => dispatch(newHeaderAction(id))}>
         Add header to change
       </button>
       {ruleHeaders?.map((h, hIdx) => <RuleHeaders headerIdx={hIdx}
                                                   ruleID={id} key={hIdx}
-                                                  headerName={h.headerName as string}
-                                                  headerValue={h.headerValue as string} />)}
+                                                  headerName={h.headerName}
+                                                  headerValue={h.headerValue} />)}
     </div>
   );
 };

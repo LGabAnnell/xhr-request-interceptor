@@ -77,7 +77,7 @@ chrome.runtime.onMessage.addListener(({ rules }: RuleMessage, _, sendResponse) =
   });
   updateRules.then(sendResponse);
   /*
-   * Tells onMessage to wait for async response (use false / don't return anything if synchronous)
+   * Tells onMessage to wait for async response (use false or don't return anything if synchronous)
    */
   return true;
 });

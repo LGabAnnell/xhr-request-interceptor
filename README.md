@@ -1,6 +1,6 @@
 # XHR Request interceptor
 
-Chrome extension to intercept xhr requests.
+Chrome extension to intercept xhr requests, using manifest V3.
 
 Development:
 
